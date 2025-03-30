@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ApprovalFunctionApp.Intefaces
+namespace ApprovalFunctionApp.Interfaces
 {
     public interface IEmailService
     {

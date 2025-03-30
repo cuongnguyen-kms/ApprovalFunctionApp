@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.DurableTask.Client;
-using ApprovalFunctionApp.Intefaces;
+using ApprovalFunctionApp.Interfaces;
 using ApprovalFunctionApp.Models;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace ApprovalFunctionApp.Services
 {
@@ -36,12 +37,20 @@ namespace ApprovalFunctionApp.Services
 
         public async Task ApproveAsync(DurableTaskClient client, string instanceId)
         {
+            var status = await client.GetInstancesAsync(instanceId);
+            if (status == null || status.RuntimeStatus == OrchestrationRuntimeStatus.Completed)
+                throw new InvalidOperationException($"Instance {instanceId} is already completed.");
+
             await client.RaiseEventAsync(instanceId, "ApprovalEvent", "Approved");
             _logger.LogInformation($"Approval granted for instance {instanceId}");
         }
 
         public async Task RejectAsync(DurableTaskClient client, string instanceId)
         {
+            var status = await client.GetInstancesAsync(instanceId);
+            if (status == null || status.RuntimeStatus == OrchestrationRuntimeStatus.Completed)
+                throw new InvalidOperationException($"Instance {instanceId} is already completed.");
+
             await client.RaiseEventAsync(instanceId, "ApprovalEvent", "Rejected");
             _logger.LogInformation($"Approval rejected for instance {instanceId}");
         }

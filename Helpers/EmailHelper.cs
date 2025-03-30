@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using ApprovalFunctionApp.Intefaces;
+using ApprovalFunctionApp.Interfaces;
 using ApprovalFunctionApp.Services;
 
 namespace ApprovalFunctionApp.Helpers
