@@ -1,5 +1,5 @@
 using ApprovalFunctionApp.Helpers;
-using ApprovalFunctionApp.Intefaces;
+using ApprovalFunctionApp.Interfaces;
 using ApprovalFunctionApp.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;

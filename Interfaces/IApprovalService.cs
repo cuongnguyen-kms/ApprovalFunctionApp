@@ -3,7 +3,7 @@ using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask;
 using System.Threading.Tasks;
 
-namespace ApprovalFunctionApp.Intefaces
+namespace ApprovalFunctionApp.Interfaces
 {
     public interface IApprovalService
     {

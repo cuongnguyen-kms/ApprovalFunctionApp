@@ -1,4 +1,4 @@
-﻿using ApprovalFunctionApp.Intefaces;
+﻿using ApprovalFunctionApp.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
 using System.Net;
