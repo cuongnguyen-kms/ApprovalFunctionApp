@@ -1,26 +1,27 @@
-﻿using ApprovalFunctionApp.Interfaces;
+﻿using ApprovalFunctionApp.Configurations;
+using ApprovalFunctionApp.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace ApprovalFunctionApp.Services
 {
     public class EmailServiceFactory
     {
-        private readonly IConfiguration _configuration;
+        private readonly EmailSettings _emailSettings;
 
-        public EmailServiceFactory(IConfiguration configuration)
+        public EmailServiceFactory(IOptions<EmailSettings> emailSettings)
         {
-            _configuration = configuration;
+            _emailSettings = emailSettings.Value;
         }
 
         public IEmailService CreateEmailService()
         {
-            var provider = _configuration["EmailSettings:Provider"];
 
-            switch (provider)
+            switch (_emailSettings.Provider)
             {
                 case "Gmail":
-                    return new GmailEmailService(_configuration);
+                    return new GmailEmailService(_emailSettings);
                 default:
                     throw new NotImplementedException("Email provider not implemented");
             }

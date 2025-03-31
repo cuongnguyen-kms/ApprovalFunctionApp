@@ -6,27 +6,35 @@ ApprovalFunctionApp is an **Azure Function App** built using **C# (.NET Isolated
 ---
 
 ## 🚀 Features
-✅ **Azure Function App (Isolated Worker Model)**
-✅ **Durable Functions for Long-Running Approval Workflows**
-✅ **Dependency Injection for Service Separation**
-✅ **Logging with ILogger**
-✅ **Unit Testing with xUnit & Moq**
-✅ **Email Notifications (Extendable)**
+✅ **Durable Orchestration** - Handles the approval workflow asynchronously.  
+✅ **Event-Driven Approval Handling** - Listens for approval events and processes accordingly.  
+✅ **Email Notifications** - Sends email updates for each approval step.  
+✅ **Structured DTOs** - Separates function layer and service layer with DTOs.  
+✅ **Configurable Settings** - Uses `EmailSettings` for SMTP configuration.  
 
 ---
 
 ## 🏗️ Project Structure
 ```
 ApprovalFunctionApp/
-│-- ApprovalFunctionApp.csproj       # Project file
-│-- host.json                        # Azure Functions configuration
-│-- local.settings.json              # Local environment settings
-│-- README.md                        # Project documentation
-│-- /Models                          # Data models
-│-- /Interfaces                      # Interface definitions
-│-- /Services                        # Business logic (ApprovalService)
-│-- /Functions                       # Azure Functions
-│   │-- ApprovalWorkflow.cs          # Durable Function triggers
+│── Configurations/
+│   ├── EmailSettings.cs         # Email configuration settings
+│── Constants/
+│   ├── AppConstants.cs          # Constant values used across the application
+│   ├── FunctionRoutes.cs        # API route constants
+│── Dtos/
+│   ├── ApprovalRequestDto.cs    # DTO for incoming approval requests
+│   ├── ApprovalEventDto.cs      # DTO for approval actions (approve/reject/cancel)
+│── Interfaces/
+│   ├── IApprovalService.cs      # Interface for Approval Service
+│   ├── IEmailService.cs         # Interface for Email Service
+│── Models/
+│   ├── ApprovalRequest.cs       # Domain model for approval requests
+│   ├── EmailData.cs             # Model for email notifications
+│── Services/
+│   ├── ApprovalService.cs       # Business logic for managing approval workflows
+│── ApprovalWorkflow.cs          # Azure Functions entry point
+│── Program.cs                   # Function app startup configuration
 ```
 
 ---

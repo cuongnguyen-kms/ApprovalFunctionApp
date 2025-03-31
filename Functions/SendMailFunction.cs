@@ -1,3 +1,4 @@
+using ApprovalFunctionApp.Constants;
 using ApprovalFunctionApp.Helpers;
 using ApprovalFunctionApp.Models;
 using Microsoft.Azure.Functions.Worker;
@@ -14,7 +15,7 @@ namespace ApprovalFunctionApp.Functions
             _emailHelper = emailHelper;
         }
 
-        [Function("SendMailFunction")]
+        [Function(FunctionRoutes.SendMailFunction)]
         public async Task SendMail([ActivityTrigger] EmailData emailData)
         {
             // Email bypass logic (no actual sending)

@@ -5,6 +5,8 @@ using ApprovalFunctionApp.Models;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 using System;
+using ApprovalFunctionApp.Constants;
+using ApprovalFunctionApp.DTOs;
 
 namespace ApprovalFunctionApp.Services
 {
@@ -19,7 +21,7 @@ namespace ApprovalFunctionApp.Services
 
         public async Task<string> StartApprovalAsync(DurableTaskClient client, ApprovalRequest approvalData)
         {
-            string instanceId = await client.ScheduleNewOrchestrationInstanceAsync("ApprovalOrchestration", approvalData);
+            string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(FunctionRoutes.ApprovalOrchestration, approvalData);
             _logger.LogInformation($"Started orchestration with ID = '{instanceId}'.");
             return instanceId;
         }
@@ -27,32 +29,37 @@ namespace ApprovalFunctionApp.Services
         public async Task RunApprovalOrchestrationAsync(TaskOrchestrationContext context)
         {
             var approvalData = context.GetInput<ApprovalRequest>();
-            await context.CallActivityAsync("SendMailFunction", new EmailData(approvalData.RequesterEmail, "Approval Started", "Your approval has started."));
+            await context.CallActivityAsync(FunctionRoutes.SendMailFunction, new EmailData(approvalData.RequesterEmail, AppConstants.ApprovalStarted, AppConstants.ApprovalStartedMessage));
 
-            string result = await context.WaitForExternalEvent<string>("ApprovalEvent");
-            string body = result == "Approved" ? "Your approval has been approved." : "Your approval has been rejected.";
-            string subject = result == "Approved" ? "Approval Approved" : "Approval Rejected";
-            await context.CallActivityAsync("SendMailFunction", new EmailData(approvalData.RequesterEmail, subject, body));
+            var approvalEvent = await context.WaitForExternalEvent<ApprovalEventDto>(AppConstants.ApprovalEvent);
+
+            string subject, body;
+
+            switch (approvalEvent.Action)
+            {
+                case AppConstants.ApprovalApproved:
+                    subject = AppConstants.ApprovalApproved;
+                    body = AppConstants.InstanceApprovedMessage;
+                    break;
+
+                case AppConstants.ApprovalRejected:
+                    subject = AppConstants.ApprovalRejected;
+                    body = AppConstants.InstanceRejectedMessage;
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unsupported approval action: {approvalEvent.Action}");
+            }
+            await context.CallActivityAsync(FunctionRoutes.SendMailFunction, new EmailData(approvalData.RequesterEmail, subject, body));
         }
-
-        public async Task ApproveAsync(DurableTaskClient client, string instanceId)
+        public async Task HandleApprovalActionAsync(DurableTaskClient client, string instanceId, ApprovalEventDto approvalEvent)
         {
             var status = await client.GetInstancesAsync(instanceId);
             if (status == null || status.RuntimeStatus == OrchestrationRuntimeStatus.Completed)
                 throw new InvalidOperationException($"Instance {instanceId} is already completed.");
 
-            await client.RaiseEventAsync(instanceId, "ApprovalEvent", "Approved");
-            _logger.LogInformation($"Approval granted for instance {instanceId}");
-        }
-
-        public async Task RejectAsync(DurableTaskClient client, string instanceId)
-        {
-            var status = await client.GetInstancesAsync(instanceId);
-            if (status == null || status.RuntimeStatus == OrchestrationRuntimeStatus.Completed)
-                throw new InvalidOperationException($"Instance {instanceId} is already completed.");
-
-            await client.RaiseEventAsync(instanceId, "ApprovalEvent", "Rejected");
-            _logger.LogInformation($"Approval rejected for instance {instanceId}");
+            await client.RaiseEventAsync(instanceId, AppConstants.ApprovalEvent, approvalEvent);
+            _logger.LogInformation($"Approval action '{approvalEvent.Action}' sent for instance {instanceId}");
         }
     }
 }
