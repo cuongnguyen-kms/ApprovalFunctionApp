@@ -63,7 +63,13 @@ Update `local.settings.json` with your Azure Storage and Email settings:
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "EmailSettings:Provider": "<your_email_provider>",
+    "EmailSettings:Username": "<your_email_user_name>",
+    "EmailSettings:Password": "<your_password>",
+    "EmailSettings:SenderEmail": "<sender_email>",
+    "EmailSettings:SmtpServer": "<smtp_server>",
+    "EmailSettings:SmtpPort": "<smtp_port>"
   }
 }
 ```
