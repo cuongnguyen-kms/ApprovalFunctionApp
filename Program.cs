@@ -1,8 +1,8 @@
+using ApprovalFunctionApp.Configurations;
 using ApprovalFunctionApp.Helpers;
 using ApprovalFunctionApp.Interfaces;
 using ApprovalFunctionApp.Services;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,13 +16,14 @@ namespace ApprovalFunctionApp
 
             var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()
-                .ConfigureServices(services =>
+                .ConfigureServices((context, services) =>
                 {
                     services.AddApplicationInsightsTelemetryWorkerService();
                     services.ConfigureFunctionsApplicationInsights();
                     services.AddSingleton<IApprovalService, ApprovalService>();
                     services.AddSingleton<IEmailHelper, EmailHelper>();
                     services.AddSingleton<EmailServiceFactory>();
+                    services.Configure<EmailSettings>(context.Configuration.GetSection("EmailSettings"));
                 })
                 .Build();
 
